@@ -1,0 +1,74 @@
+<!-- desktop.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Leitor de QR Code</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h2>Leitor de QR Code</h2>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+    
+    <div id="output">
+        <h3>Informações:</h3>
+        <p id="info">Aguardando leitura do QR Code...</p>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const output = document.getElementById('info');
+
+        // Configurar câmera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+                requestAnimationFrame(tick);
+            })
+            .catch(err => {
+                console.error('Erro ao acessar câmera:', err);
+                output.textContent = 'Erro ao acessar a câmera';
+            });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    try {
+                        const data = JSON.parse(code.data);
+                        output.innerHTML = `
+                            Nome: ${data.nome}<br>
+                            Telefone: ${data.telefone}<br>
+                            Mensagem: ${data.mensagem}
+                        `;
+                    } catch (e) {
+                        output.textContent = 'Erro ao processar QR Code';
+                    }
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+    </script>
+</body>
+</html>
