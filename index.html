@@ -1,0 +1,71 @@
+<!-- mobile.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de QR Code</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 100%;
+        }
+        #qrcode {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Inserir Informações</h2>
+    <form id="infoForm">
+        <label>Nome:</label><br>
+        <input type="text" id="nome" required><br><br>
+        
+        <label>Telefone:</label><br>
+        <input type="tel" id="telefone" required><br><br>
+        
+        <label>Mensagem:</label><br>
+        <textarea id="mensagem" required></textarea><br><br>
+        
+        <button type="submit">Gerar QR Code</button>
+    </form>
+    
+    <div id="qrcode"></div>
+
+    <script>
+        const form = document.getElementById('infoForm');
+        const qrcodeDiv = document.getElementById('qrcode');
+        
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Pegar valores do formulário
+            const nome = document.getElementById('nome').value;
+            const telefone = document.getElementById('telefone').value;
+            const mensagem = document.getElementById('mensagem').value;
+            
+            // Criar objeto com as informações
+            const data = {
+                nome: nome,
+                telefone: telefone,
+                mensagem: mensagem
+            };
+            
+            // Converter para string JSON
+            const dataString = JSON.stringify(data);
+            
+            // Limpar QR Code anterior
+            qrcodeDiv.innerHTML = '';
+            
+            // Gerar novo QR Code
+            new QRCode(qrcodeDiv, {
+                text: dataString,
+                width: 256,
+                height: 256
+            });
+        });
+    </script>
+</body>
+</html>
